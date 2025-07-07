@@ -1,103 +1,154 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import WeeklyCalendar from '@/components/WeeklyCalendar';
+import EventModal from '@/components/EventModal';
+import { Event } from '@/types/calendar';
+import { getNextWeek, getPreviousWeek, isDateInWeek } from '@/utils/dateUtils';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [editingEvent, setEditingEvent] = useState<Event | undefined>();
+  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    return startOfWeek;
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const savedEvents = localStorage.getItem('calendar-events');
+    if (savedEvents) {
+      setEvents(JSON.parse(savedEvents));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('calendar-events', JSON.stringify(events));
+  }, [events]);
+
+  const handleSaveEvent = (eventData: Omit<Event, 'id'>) => {
+    if (editingEvent) {
+      setEvents(events.map(event => 
+        event.id === editingEvent.id 
+          ? { ...eventData, id: editingEvent.id }
+          : event
+      ));
+      setEditingEvent(undefined);
+    } else {
+      const newEvent: Event = {
+        ...eventData,
+        id: Date.now().toString()
+      };
+      setEvents([...events, newEvent]);
+    }
+  };
+
+  const handleEventClick = (event: Event) => {
+    setEditingEvent(event);
+    setIsModalOpen(true);
+  };
+
+  const handleDayClick = (date: Date) => {
+    setSelectedDate(date);
+    setEditingEvent(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleCreateEvent = () => {
+    setSelectedDate(new Date());
+    setEditingEvent(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handlePreviousWeek = () => {
+    setCurrentWeekStart(getPreviousWeek(currentWeekStart));
+  };
+
+  const handleNextWeek = () => {
+    setCurrentWeekStart(getNextWeek(currentWeekStart));
+  };
+
+  const handleToday = () => {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    setCurrentWeekStart(startOfWeek);
+  };
+
+  const getEventsForCurrentWeek = () => {
+    return events.filter(event => isDateInWeek(event.date, currentWeekStart));
+  };
+
+  const eventsThisWeek = getEventsForCurrentWeek();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8 animate-fadeIn">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            My Calendar
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Organize your schedule with style ✨
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="mb-6 flex justify-between items-center animate-slideIn">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-500 bg-white/70 backdrop-blur-sm px-3 py-1 rounded-full">
+              {eventsThisWeek.length} {eventsThisWeek.length === 1 ? 'event' : 'events'} this week
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePreviousWeek}
+                className="p-2 rounded-lg bg-white/70 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 hover:scale-105"
+                title="Previous Week"
+              >
+                ←
+              </button>
+              <button
+                onClick={handleToday}
+                className="px-3 py-1 text-sm rounded-lg bg-white/70 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 hover:scale-105"
+                title="Go to Today"
+              >
+                Today
+              </button>
+              <button
+                onClick={handleNextWeek}
+                className="p-2 rounded-lg bg-white/70 backdrop-blur-sm hover:bg-white/90 transition-all duration-200 hover:scale-105"
+                title="Next Week"
+              >
+                →
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={handleCreateEvent}
+            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105"
+          >
+            <span className="text-lg">+</span>
+            New Event
+          </button>
+        </div>
+
+        <WeeklyCalendar
+          events={events}
+          onEventClick={handleEventClick}
+          onDayClick={handleDayClick}
+          currentWeekStart={currentWeekStart}
+        />
+
+        <EventModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveEvent}
+          selectedDate={selectedDate}
+          editingEvent={editingEvent}
+        />
+      </div>
     </div>
   );
 }
