@@ -20,20 +20,29 @@ export default function EventModal({ isOpen, onClose, onSave, selectedDate, edit
   const [color, setColor] = useState('blue');
 
   useEffect(() => {
-    if (editingEvent) {
-      setTitle(editingEvent.title);
-      setDate(editingEvent.date);
-      setTime(editingEvent.time);
-      setDescription(editingEvent.description || '');
-      setColor(editingEvent.color || 'blue');
-    } else if (selectedDate) {
-      setDate(formatDate(selectedDate));
-      setTime('09:00');
-      setTitle('');
-      setDescription('');
-      setColor('blue');
+    if (isOpen) {
+      if (editingEvent) {
+        setTitle(editingEvent.title);
+        setDate(editingEvent.date);
+        setTime(editingEvent.time);
+        setDescription(editingEvent.description || '');
+        setColor(editingEvent.color || 'blue');
+      } else if (selectedDate) {
+        setDate(formatDate(selectedDate));
+        setTime('09:00');
+        setTitle('');
+        setDescription('');
+        setColor('blue');
+      } else {
+        // Reset form when opening without specific date or event
+        setTitle('');
+        setDate('');
+        setTime('09:00');
+        setDescription('');
+        setColor('blue');
+      }
     }
-  }, [editingEvent, selectedDate]);
+  }, [isOpen, editingEvent, selectedDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,8 +84,8 @@ export default function EventModal({ isOpen, onClose, onSave, selectedDate, edit
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center p-4 z-50">
+      <div className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
