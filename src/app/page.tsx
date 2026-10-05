@@ -17,6 +17,7 @@ export default function Home() {
     startOfWeek.setDate(today.getDate() - today.getDay());
     return startOfWeek;
   });
+  //
 
   useEffect(() => {
     const savedEvents = localStorage.getItem('calendar-events');
