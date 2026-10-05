@@ -17,7 +17,7 @@ export default function WeeklyCalendar({ events, onEventClick, onDayClick, curre
   useEffect(() => {
     const week = getWeekFromDate(currentWeekStart);
     
-    // Group events by date //
+    // Group events by date 
     const eventsByDate: { [key: string]: Event[] } = {};
     events.forEach(event => {
       if (!eventsByDate[event.date]) {
