@@ -1,23 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Event } from '@/types/calendar';
-import { formatDate } from '@/utils/dateUtils';
+import { useState, useEffect } from "react";
+import { Event } from "@/types/calendar";
+import { formatDate } from "@/utils/dateUtils";
 
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (event: Omit<Event, 'id'>) => void;
+  onSave: (event: Omit<Event, "id">) => void;
   selectedDate?: Date;
   editingEvent?: Event;
 }
 
-export default function EventModal({ isOpen, onClose, onSave, selectedDate, editingEvent }: EventModalProps) {
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [description, setDescription] = useState('');
-  const [color, setColor] = useState('blue');
+export default function EventModal({
+  isOpen,
+  onClose,
+  onSave,
+  selectedDate,
+  editingEvent,
+}: EventModalProps) {
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [description, setDescription] = useState("");
+  const [color, setColor] = useState("blue");
 
   useEffect(() => {
     if (isOpen) {
@@ -25,21 +31,21 @@ export default function EventModal({ isOpen, onClose, onSave, selectedDate, edit
         setTitle(editingEvent.title);
         setDate(editingEvent.date);
         setTime(editingEvent.time);
-        setDescription(editingEvent.description || '');
-        setColor(editingEvent.color || 'blue');
+        setDescription(editingEvent.description || "");
+        setColor(editingEvent.color || "blue");
       } else if (selectedDate) {
         setDate(formatDate(selectedDate));
-        setTime('09:00');
-        setTitle('');
-        setDescription('');
-        setColor('blue');
+        setTime("09:00");
+        setTitle("");
+        setDescription("");
+        setColor("blue");
       } else {
         // Reset form when opening without specific date or event
-        setTitle('');
-        setDate('');
-        setTime('09:00');
-        setDescription('');
-        setColor('blue');
+        setTitle("");
+        setDate("");
+        setTime("09:00");
+        setDescription("");
+        setColor("blue");
       }
     }
   }, [isOpen, editingEvent, selectedDate]);
@@ -53,34 +59,59 @@ export default function EventModal({ isOpen, onClose, onSave, selectedDate, edit
       date,
       time,
       description,
-      color
+      color,
     });
 
-    setTitle('');
-    setDate('');
-    setTime('');
-    setDescription('');
-    setColor('blue');
+    setTitle("");
+    setDate("");
+    setTime("");
+    setDescription("");
+    setColor("blue");
     onClose();
   };
 
   const handleClose = () => {
-    setTitle('');
-    setDate('');
-    setTime('');
-    setDescription('');
-    setColor('blue');
+    setTitle("");
+    setDate("");
+    setTime("");
+    setDescription("");
+    setColor("blue");
     onClose();
   };
 
   if (!isOpen) return null;
 
   const colorOptions = [
-    { value: 'blue', label: 'Blue', bg: 'bg-blue-100', border: 'border-blue-300' },
-    { value: 'green', label: 'Green', bg: 'bg-green-100', border: 'border-green-300' },
-    { value: 'purple', label: 'Purple', bg: 'bg-purple-100', border: 'border-purple-300' },
-    { value: 'pink', label: 'Pink', bg: 'bg-pink-100', border: 'border-pink-300' },
-    { value: 'orange', label: 'Orange', bg: 'bg-orange-100', border: 'border-orange-300' },
+    {
+      value: "blue",
+      label: "Blue",
+      bg: "bg-blue-100",
+      border: "border-blue-300",
+    },
+    {
+      value: "green",
+      label: "Green",
+      bg: "bg-green-100",
+      border: "border-green-300",
+    },
+    {
+      value: "purple",
+      label: "Purple",
+      bg: "bg-purple-100",
+      border: "border-purple-300",
+    },
+    {
+      value: "pink",
+      label: "Pink",
+      bg: "bg-pink-100",
+      border: "border-pink-300",
+    },
+    {
+      value: "orange",
+      label: "Orange",
+      bg: "bg-orange-100",
+      border: "border-orange-300",
+    },
   ];
 
   return (
@@ -89,7 +120,7 @@ export default function EventModal({ isOpen, onClose, onSave, selectedDate, edit
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {editingEvent ? 'Edit Event' : 'Create New Event'}
+              {editingEvent ? "Edit Event" : "Create New Event"}
             </h2>
             <button
               onClick={handleClose}
@@ -166,7 +197,9 @@ export default function EventModal({ isOpen, onClose, onSave, selectedDate, edit
                     type="button"
                     onClick={() => setColor(option.value)}
                     className={`w-8 h-8 rounded-full border-2 ${option.bg} ${option.border} ${
-                      color === option.value ? 'ring-2 ring-offset-2 ring-blue-500' : ''
+                      color === option.value
+                        ? "ring-2 ring-offset-2 ring-blue-500"
+                        : ""
                     }`}
                     title={option.label}
                   />
@@ -186,7 +219,7 @@ export default function EventModal({ isOpen, onClose, onSave, selectedDate, edit
                 type="submit"
                 className="flex-1 px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors"
               >
-                {editingEvent ? 'Update Event' : 'Create Event'}
+                {editingEvent ? "Update Event" : "Create Event"}
               </button>
             </div>
           </form>
